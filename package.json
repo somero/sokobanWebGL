@@ -1,0 +1,26 @@
+{
+  "name": "sokoban_web_gl",
+  "version": "1.0.0",
+  "description": "Sokoban on WEB! YooHoo!",
+  "main": "sokobanCore.js",
+  "dependencies": {
+    "three": "^0.84.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/somero/sokobanWebGL.git"
+  },
+  "keywords": [
+    "Sokoban"
+  ],
+  "author": "Roey-Omer",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/somero/sokobanWebGL/issues"
+  },
+  "homepage": "https://github.com/somero/sokobanWebGL#readme"
+}
