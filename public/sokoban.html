@@ -11,23 +11,90 @@
 		<script>
 			var scene = new THREE.Scene();
 			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+			var light = new THREE.DirectionalLight( 0xffffff, 1 );
+			var ambient = new THREE.AmbientLight( 0xffffff, 0.8 );
+			// var sun = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
+			// var helper = new THREE.HemisphereLightHelper( sun, 5 );
 
 			var renderer = new THREE.WebGLRenderer();
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			document.body.appendChild( renderer.domElement );
 
-			var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-			var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-			var cube = new THREE.Mesh( geometry, material );
-			scene.add( cube );
+			var earthSize = 2;
+			var geometry = new THREE.SphereGeometry( earthSize, 32, 32);
+			//var material = new THREE.MeshStandardMaterial( { color: 0xff0000 } );
+			var material = new THREE.MeshPhongMaterial( { color: 0xffffff, specular:0x555555, shininess:10 } );
+			var mapLoader = new THREE.TextureLoader();
+			var earth = new THREE.Mesh( geometry, material );
 
+			mapLoader.load('images/color_texture.jpg', 
+						function ( texture ) {
+							material.map = texture;
+							earth.material.needsUpdate = true;
+		 				});
+
+			mapLoader.load('images/bump_texture.jpg', 
+						function ( texture ) {
+							material.bumpMap = texture;
+							material.bumpScale = 0.05;
+							earth.material.needsUpdate = true;
+		 				});
+			
+			mapLoader.load('images/specular_inverted_texture.png', 
+						function ( texture ) {
+							material.specularMap = texture;
+							earth.material.needsUpdate = true;
+		 				});
+
+			var geometry = new THREE.SphereGeometry(earthSize + 0.01, 32, 32);
+			var cloudMaterial = new THREE.MeshPhongMaterial({
+				side: THREE.doubleside, 
+				opacity: 0.8,
+				transparent: true, 
+				depthwrite: false,
+				depthTest: false,
+			});
+			var cloudMesh = new THREE.Mesh(geometry, cloudMaterial);
+
+			mapLoader.load('images/clouds_texture.png', 
+						function ( texture ) {
+							cloudMaterial.map = texture;
+							cloudMaterial.alphaMap = texture;
+							cloudMesh.material.needsUpdate = true;
+		 				});
+
+			earth.add( cloudMesh );
+			
+			scene.add( earth );
+			scene.add( light );
+			scene.add( ambient );
+			// scene.add( helper );
+
+			light.position.set(100, 100, 50);
 			camera.position.z = 5;
+			// sun.position.z = 5;
+
+			var geometry = new THREE.SphereGeometry(90, 32, 32);
+			var starMaterial = new THREE.MeshBasicMaterial();
+			var starMesh = new THREE.Mesh(geometry, starMaterial);
+
+			mapLoader.load('images/stars_texture.png', 
+						function ( texture ) {
+							texture.wrapS = THREE.RepeatWrapping;
+    						texture.wrapT = THREE.RepeatWrapping;
+    						texture.repeat.set(16, 16);
+							starMaterial.map = texture;
+							starMaterial.side = THREE.BackSide;
+							starMaterial.needsUpdate = true;
+		 				});
+			scene.add( starMesh );
 
 			var render = function () {
 				requestAnimationFrame( render );
 
-				cube.rotation.x += 0.1;
-				cube.rotation.y += 0.1;
+				earth.rotation.y += 0.01;
+				cloudMesh.rotation.y += 0.005;
+				// cloudMesh.rotation.x += 0.001;
 
 				renderer.render(scene, camera);
 			};
