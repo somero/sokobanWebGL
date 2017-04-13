@@ -8,8 +8,11 @@
 	</head>
 	<body>
 		<script src="/scripts/three.min.js"></script>
+		<script src="/scripts/controls/OrbitControls.js"></script>
 		<script>
 			var scene = new THREE.Scene();
+			var raycaster = new THREE.Raycaster();
+			var mouse = new THREE.Vector2();
 			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
 			var light = new THREE.DirectionalLight( 0xffffff, 1 );
 			var ambient = new THREE.AmbientLight( 0xffffff, 0.8 );
@@ -63,7 +66,7 @@
 							cloudMesh.material.needsUpdate = true;
 		 				});
 
-			earth.add( cloudMesh );
+			// earth.add( cloudMesh );
 			
 			scene.add( earth );
 			scene.add( light );
@@ -92,14 +95,43 @@
 			var render = function () {
 				requestAnimationFrame( render );
 
-				earth.rotation.y += 0.01;
-				cloudMesh.rotation.y += 0.005;
+				// earth.rotation.y += 0.01;
+				cloudMesh.rotation.y += 0.0003;
 				// cloudMesh.rotation.x += 0.001;
+
+				// update the picking ray with the camera and mouse position
+				raycaster.setFromCamera( mouse, camera );
+
+				// calculate objects intersecting the picking ray
+				var intersects = raycaster.intersectObjects( [earth] );
+				if (intersects[0]) {
+					var point = intersects[0].point;
+					long = (Math.PI/2 - Math.acos(point.z/earthSize)) * 180 / Math.PI;
+					lat = -Math.atan(point.y/point.x) * 180 / Math.PI;
+					console.log(lat, long);
+				}
 
 				renderer.render(scene, camera);
 			};
 
+			controls = new THREE.OrbitControls(camera, renderer.domElement);
+			controls.target.set(0, 0, 0);
+
 			render();
+
+
+
+			function onMouseMove( event ) {
+
+				// calculate mouse position in normalized device coordinates
+				// (-1 to +1) for both components
+
+				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+				mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+			}
+
+			window.addEventListener( 'mousemove', onMouseMove, false );
 		</script>
 	</body>
 </html>
